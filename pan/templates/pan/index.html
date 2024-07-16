@@ -1,0 +1,209 @@
+<!DOCTYPE html>{% load static %}
+<html lang="zh" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'pan/vendor/mdb/mdb.min.css' %}" rel="stylesheet">
+    <link href="{% static 'pan/vendor/font-awesome/all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'pan/css/style.css' %}" rel="stylesheet">
+    <title>首页</title>
+    <style>
+        body {
+            background: url("{% static 'pan/img/mountain.jpg' %}") no-repeat center center fixed;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body class="h-100">
+<div class="mask" style="background-color: rgba(0, 0, 0, 0.6)">
+    <nav class="navbar navbar-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand">Tiny Network Disk</a>
+            <ul class="navbar-nav ms-auto" id="authLink">
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0)"
+                       data-mdb-toggle="offcanvas" data-mdb-target="#authCanvas">Login / Register</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto flex-row align-items-center" id="navbar">
+                <li class="nav-item me-3">
+                    <a class="nav-link" href="{% url 'pan:home' %}#storage"><i class="fa-solid fa-cloud"></i></a>
+                </li>
+                <li class="nav-item me-3">
+                    <a class="nav-link" href="{% url 'pan:home' %}#history"><i class="fa-solid fa-clock"></i></a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="javascript:void(0)" data-mdb-toggle="dropdown">
+                        <img class="rounded-circle" id="avatar" src="" height="25" width="25"
+                             alt="avatar">
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'pan:home' %}#profile">personal information</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" id="logout" href="javascript:void(0)">sign out</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="h-100 d-flex justify-content-center align-items-center">
+        <div id="shareCard" class="card" style="width: 18rem; display: none">
+            <div class="card-header">
+                <button type="button" class="float-end btn-close"></button>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title file-name"></h5>
+                <div class="smaller" id="expiry"></div>
+                <p class="smaller" id="summary" style="height: 8rem"></p>
+                <div class="d-flex align-items-center border rounded p-2 mb-2">
+                    <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-file_default" xmlns="http://www.w3.org/2000/svg"
+                             xmlns:xlink="http://www.w3.org/1999/xlink">
+                        </use>
+                    </svg>
+                    <div class="ms-2 text-truncate smaller">
+                        <div class="file-name"></div>
+                        <div class="text-muted" id="size"></div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-warning btn-rounded">下载</button>
+            </div>
+        </div>
+        <div id="keyArea">
+            <h1 class="text-white text-center mb-5">Explore Now</h1>
+            <div class="form-outline form-white" style="width: 15rem">
+                <input type="text" id="key" class="form-control form-control-lg form-icon-trailing" maxlength="6"
+                       autocomplete="off"/>
+                <label class="form-label" for="key">Enter sharing password</label>
+                <i class="text-white fa-solid fa-key trailing"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="authCanvas" data-mdb-scroll="true" data-mdb-backdrop="false">
+    <div class="offcanvas-header">
+        <button type="button" class="btn-close" data-mdb-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="nav nav-pills mb-5">
+            <li class="nav-item">
+                <a class="nav-link active" id="loginTab" data-mdb-toggle="pill" href="#signIn">Log in</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-mdb-toggle="pill" href="#signUp">Register</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="signIn">
+                <form class="row g-4" data-url="login" novalidate>
+                    <div class="col-12">
+                        <div class="form-outline">
+                            <input type="text" id="username" name="username" class="form-control"
+                                   maxlength="150" required/>
+                            <label class="form-label" for="username">username</label>
+                            <div class="invalid-feedback">Not empty and less than 150 characters long</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-outline">
+                            <input type="password" id="password" name="password" class="form-control"
+                                   minlength="6" maxlength="128" required/>
+                            <label class="form-label" for="password">password</label>
+                            <div class="invalid-feedback">The length is greater than 6 and less than 128</div>
+                        </div>
+                    </div>
+                    <div class="col-12 d-flex justify-content-between">
+                        <div class="form-check">
+                            <input class="form-check-input me-2" id="remember" name="remember"
+                                   type="checkbox" checked/>
+                            <label class="form-check-label" for="remember">remember me</label>
+                        </div>
+                        <a href="#resetModal" data-mdb-toggle="modal">forget the password?</a>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-primary btn-block">Log in</button>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="signUp">
+                <form class="row g-4" data-url="register" novalidate>
+                    <div class="col-12">
+                        <div class="form-outline">
+                            <input type="text" id="_username" name="username"
+                                   class="form-control" maxlength="150" required/>
+                            <label class="form-label" for="_username">username</label>
+                            <div class="invalid-feedback">Not empty and less than 150 characters long</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-outline">
+                            <input type="password" id="password1" name="password1"
+                                   class="form-control" minlength="6" maxlength="128" required/>
+                            <label class="form-label" for="password1">password</label>
+                            <div class="invalid-feedback">The length is greater than 6 and less than 128</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-outline">
+                            <input type="password" id="password2" name="password2"
+                                   class="form-control" minlength="6" maxlength="128" required/>
+                            <label class="form-label" for="password2">Confirm Password</label>
+                            <div class="invalid-feedback">The length is greater than 6 and less than 128</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-primary btn-block">register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast" class="toast">
+        <div class="toast-header">
+            <i></i>
+            <button type="button" class="ms-auto btn-close" data-mdb-dismiss="toast"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+<div class="modal fade" id="resetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">reset Password</h5>
+                <button type="button" class="btn-close" data-mdb-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Fill in the user name, the server will send a verification email to the email address bound to the user</p>
+                <p class="text-muted small">Note: If you cannot receive emails, please check whether the pop3/smtp service of the network and mailbox is turned on.</p>
+                <form class="row gy-3" data-url="reset" novalidate>
+                    <div class="col-12">
+                        <div class="form-outline">
+                            <input class="form-control" id="resetName" name="username" maxlength="150" required>
+                            <label class="form-label" for="resetName">username</label>
+                            <div class="invalid-feedback">Please enter a valid username</div>
+                        </div>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="reset" class="btn btn-secondary">Cancel</button>
+                        <button class="btn btn-primary">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'pan/vendor/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'pan/vendor/mdb/mdb.min.js' %}"></script>
+<script src="{% static 'pan/vendor/iconfont/iconfont.js' %}"></script>
+<script src="{% static 'pan/js/utils.js' %}"></script>
+<script src="{% static 'pan/js/config.js' %}"></script>
+<script src="{% static 'pan/js/index.js' %}"></script>
+</body>
+</html>

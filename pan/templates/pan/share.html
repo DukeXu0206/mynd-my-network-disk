@@ -1,0 +1,74 @@
+<!DOCTYPE html>{% load static %}
+<html lang="zh" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'pan/vendor/mdb/mdb.min.css' %}" rel="stylesheet">
+    <link href="{% static 'pan/css/style.css' %}" rel="stylesheet">
+    <title>share</title>
+</head>
+<body class="h-100">
+<div id="wrapper" class="d-flex justify-content-center align-items-center h-100">
+    <div class="card" style="width: 18rem; display: none">
+        <div class="card-body">
+            <h5 class="card-title file-name"></h5>
+            <div class="smaller" id="expiry"></div>
+            <p class="smaller" id="summary" style="height: 8rem"></p>
+            <div class="d-flex align-items-center border rounded p-2 mb-2">
+                <svg class="icon" aria-hidden="true">
+                    <use xlink:href="#icon-file_default" xmlns="http://www.w3.org/2000/svg"
+                         xmlns:xlink="http://www.w3.org/1999/xlink">
+                    </use>
+                </svg>
+                <div class="ms-2 text-truncate smaller">
+                    <div class="file-name"></div>
+                    <div class="text-muted" id="size"></div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-warning btn-rounded ">下载</button>
+            <a href="{% url 'pan:index' %}" class="btn btn-light btn-rounded ">回到主页</a>
+        </div>
+    </div>
+</div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast" class="toast">
+        <div class="toast-header">
+            <i></i>
+            <button type="button" class="ms-auto btn-close" data-mdb-dismiss="toast"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+<script src="{% static 'pan/vendor/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'pan/vendor/mdb/mdb.min.js' %}"></script>
+<script src="{% static 'pan/vendor/iconfont/iconfont.js' %}"></script>
+<script src="{% static 'pan/js/utils.js' %}"></script>
+<script src="{% static 'pan/js/config.js' %}"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        let key = domutil.getURLParam('key')
+        let wrapper = document.getElementById('wrapper')
+        let toast = new mdb.Toast(document.getElementById('toast'))
+
+        $.get(_urls.shareSecret, {key: key}, (data, status, xhr) => {
+            if (xhr.status === 200) {
+                let card = wrapper.querySelector('.card')
+                card.querySelectorAll('.file-name').forEach((el) => el.textContent = data.file.file_name)
+                card.querySelector('#summary').textContent = data.summary
+                card.querySelector('#expiry').textContent = custom.humanizeTime(data.expire_time)
+                card.querySelector('#size').textContent = custom.fileSizeFormat(data.file.file_size)
+                card.querySelector('button').addEventListener('click', () => {
+                    location.href = _urls.fileBinary(data.file.file_uuid)
+                    toast.setIcon(_fontawsome.info).setText('Packing in progress, please wait').show()
+                })
+                card.style.setProperty('display', 'block')
+            } else {
+                let html = `<p>The file has expired</p><a class="btn btn-light btn-lg shadow-1" href="/">return to home page</a>`
+                wrapper.insertAdjacentHTML('beforeend', templates.elEmpty(html))
+            }
+        })
+    })
+</script>
+</body>
+</html>

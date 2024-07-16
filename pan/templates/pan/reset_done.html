@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.bootcdn.net/ajax/libs/mdb-ui-kit/6.0.0/mdb.min.css" rel="stylesheet">
+    <title>Reset information</title>
+</head>
+<body class="h-100">
+<div class="d-flex justify-content-center align-items-center h-100">
+    <section class="text-center">
+        <h3 class="mb-3">
+            {% if access %}Your account password has been reset, please change it in time{% else %}This link has expired{% endif %}
+        </h3>
+        <a class="btn btn-dark" href="{% url 'pan:index' %}">Back to Home</a>
+    </section>
+</div>
+</body>
+</html>
