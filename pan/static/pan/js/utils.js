@@ -692,7 +692,7 @@
                     dataset: {back: true},
                     class: this._itemclass,
                     type: 'button',
-                }, [icon, '返回上一级'])
+                }, [icon, 'return parent'])
                 this._element.append(item)
             }
 

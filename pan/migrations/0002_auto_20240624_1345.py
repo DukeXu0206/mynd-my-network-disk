@@ -18,16 +18,16 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='genericfile',
-            options={'verbose_name': '文件', 'verbose_name_plural': '文件'},
+            options={'verbose_name': 'file', 'verbose_name_plural': 'file'},
         ),
         migrations.AlterField(
             model_name='recyclefile',
             name='origin_path',
-            field=models.CharField(max_length=500, verbose_name='原路径'),
+            field=models.CharField(max_length=500, verbose_name='origin_path'),
         ),
         migrations.AlterField(
             model_name='rolelimit',
             name='value',
-            field=models.BigIntegerField(default=0, verbose_name='值'),
+            field=models.BigIntegerField(default=0, verbose_name='value'),
         ),
     ]

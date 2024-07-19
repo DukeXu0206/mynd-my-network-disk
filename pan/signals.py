@@ -17,7 +17,7 @@ from pan.utils import get_secret_path
 @receiver(post_save, sender=User, dispatch_uid="post_save_user")
 def post_save_user(sender, instance, created, **kwargs):
     if created:
-        role = Role.objects.get_or_create(role_key='common', defaults={'role_name': '普通用户'})[0]
+        role = Role.objects.get_or_create(role_key='common', defaults={'role_name': 'general user'})[0]
         Profile.objects.create(user=instance, role=role)
         root = get_secret_path(instance.username.encode())
         GenericFile.objects.create(create_by=instance, file_name=root, file_path=root)

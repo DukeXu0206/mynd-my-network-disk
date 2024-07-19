@@ -1200,7 +1200,7 @@ window.addEventListener('DOMContentLoaded', function () {
                                 cropper.getCroppedCanvas().toBlob((blob) => {
                                     if (blob.size > _config.MAX_AVATAR_SIZE) {
                                         toast.setIcon(_fontawsome.warning)
-                                            .setText(`上传图片不能大于${custom.fileSizeFormat(_config.MAX_AVATAR_SIZE)}`)
+                                            .setText(`Uploaded images cannot be larger than${custom.fileSizeFormat(_config.MAX_AVATAR_SIZE)}`)
                                             .show()
                                     } else {
                                         let formData = new FormData()
@@ -1218,10 +1218,10 @@ window.addEventListener('DOMContentLoaded', function () {
                                                     cropper.replace(res.data.avatar)
                                                     profile.avatar = res.data.avatar
                                                     avatar = res.data.avatar
-                                                    toast.setIcon(_fontawsome.success).setText('上传成功').show()
+                                                    toast.setIcon(_fontawsome.success).setText('Upload Successfully').show()
                                                 }
                                             },
-                                            error: () => toast.setIcon(_fontawsome.warning).setText('上传失败').show()
+                                            error: () => toast.setIcon(_fontawsome.warning).setText('Upload Failed').show()
                                         })
                                     }
                                 })
