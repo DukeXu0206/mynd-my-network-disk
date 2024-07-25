@@ -3,8 +3,8 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import pan.models
-import pan.utils
+import disk.models
+import disk.utils
 
 
 class Migration(migrations.Migration):
@@ -42,8 +42,8 @@ class Migration(migrations.Migration):
                 ('remark', models.TextField(blank=True, verbose_name='remark')),
                 ('type_name', models.CharField(max_length=50, verbose_name='type name')),
                 ('suffix', models.CharField(blank=True, max_length=10, unique=True, verbose_name='file extension')),
-                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
-                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
+                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
+                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
             ],
             options={
                 'verbose_name': 'file type',
@@ -58,14 +58,14 @@ class Migration(migrations.Migration):
                 ('update_time', models.DateTimeField(auto_now=True, verbose_name='update time')),
                 ('remark', models.TextField(blank=True, verbose_name='remark')),
                 ('file_name', models.CharField(max_length=100, verbose_name='type name')),
-                ('file_uuid', models.UUIDField(default=pan.utils.get_uuid, unique=True, verbose_name='file no')),
+                ('file_uuid', models.UUIDField(default=disk.utils.get_uuid, unique=True, verbose_name='file no')),
                 ('file_size', models.BigIntegerField(default=0, verbose_name='file size (bytes)')),
                 ('file_path', models.CharField(db_index=True, max_length=500, verbose_name='file path')),
                 ('is_del', models.BooleanField(default=False, verbose_name='recycling')),
-                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='files', to=settings.AUTH_USER_MODEL, verbose_name='creator')),
-                ('file_type', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_file_type), related_name='files', to='pan.filetype', verbose_name='file type')),
-                ('folder', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='files', to='pan.genericfile', to_field='file_uuid', verbose_name='parent directory')),
-                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
+                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='files', to=settings.AUTH_USER_MODEL, verbose_name='creator')),
+                ('file_type', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_file_type), related_name='files', to='disk.filetype', verbose_name='file type')),
+                ('folder', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='files', to='disk.genericfile', to_field='file_uuid', verbose_name='parent directory')),
+                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
             ],
             options={
                 'verbose_name': 'Files and folders',
@@ -81,8 +81,8 @@ class Migration(migrations.Migration):
                 ('remark', models.TextField(blank=True, verbose_name='remark')),
                 ('limit_name', models.CharField(max_length=50, verbose_name='restriction name')),
                 ('limit_key', models.CharField(max_length=50, unique=True, verbose_name='restricted characters')),
-                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
-                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
+                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
+                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
             ],
             options={
                 'verbose_name': 'limit',
@@ -98,8 +98,8 @@ class Migration(migrations.Migration):
                 ('remark', models.TextField(blank=True, verbose_name='remark')),
                 ('role_name', models.CharField(max_length=50, verbose_name='role name')),
                 ('role_key', models.CharField(max_length=50, unique=True, verbose_name='role character')),
-                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
-                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
+                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
+                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
             ],
             options={
                 'verbose_name': 'role',
@@ -114,10 +114,10 @@ class Migration(migrations.Migration):
                 ('update_time', models.DateTimeField(auto_now=True, verbose_name='update time')),
                 ('remark', models.TextField(blank=True, verbose_name='remark')),
                 ('value', models.BigIntegerField(verbose_name='value')),
-                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
-                ('limit', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pan.limit', verbose_name='限制')),
-                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pan.role', verbose_name='role')),
-                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
+                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
+                ('limit', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='disk.limit', verbose_name='限制')),
+                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='disk.role', verbose_name='role')),
+                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
             ],
             options={
                 'verbose_name': 'role limit',
@@ -133,9 +133,9 @@ class Migration(migrations.Migration):
                 ('remark', models.TextField(blank=True, verbose_name='remark')),
                 ('recycle_path', models.CharField(max_length=500, verbose_name='recycling path')),
                 ('origin_path', models.CharField(max_length=500, verbose_name='recycling path')),
-                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='recycle_files', to=settings.AUTH_USER_MODEL, verbose_name='creator')),
-                ('origin', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='recycle_file', to='pan.genericfile', to_field='file_uuid', verbose_name='source file')),
-                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
+                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='recycle_files', to=settings.AUTH_USER_MODEL, verbose_name='creator')),
+                ('origin', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='recycle_file', to='disk.genericfile', to_field='file_uuid', verbose_name='source file')),
+                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
             ],
             options={
                 'verbose_name': 'recycling files',
@@ -149,10 +149,10 @@ class Migration(migrations.Migration):
                 ('create_time', models.DateTimeField(auto_now_add=True, verbose_name='create time')),
                 ('update_time', models.DateTimeField(auto_now=True, verbose_name='update time')),
                 ('remark', models.TextField(blank=True, verbose_name='remark')),
-                ('avatar', models.ImageField(default='default/user.svg', upload_to=pan.utils.get_unique_filename, verbose_name='avatar')),
+                ('avatar', models.ImageField(default='default/user.svg', upload_to=disk.utils.get_unique_filename, verbose_name='avatar')),
                 ('gender', models.CharField(blank=True, choices=[('0', 'female'), ('1', 'male')], max_length=1, verbose_name='gender')),
-                ('role', models.ForeignKey(on_delete=models.SET(pan.models.get_deleted_role), to='pan.role', verbose_name='role')),
-                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
+                ('role', models.ForeignKey(on_delete=models.SET(disk.models.get_deleted_role), to='disk.role', verbose_name='role')),
+                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user')),
             ],
             options={
@@ -169,8 +169,8 @@ class Migration(migrations.Migration):
                 ('remark', models.TextField(blank=True, verbose_name='remark')),
                 ('title', models.CharField(max_length=50, verbose_name='title')),
                 ('content', models.TextField(verbose_name='notification content')),
-                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
-                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
+                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
+                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
             ],
             options={
                 'verbose_name': 'notification',
@@ -187,8 +187,8 @@ class Migration(migrations.Migration):
                 ('action', models.CharField(choices=[('0', 'message'), ('1', 'apply')], max_length=1, verbose_name='type')),
                 ('status', models.CharField(choices=[('0', 'unapproved'), ('1', 'pass'), ('2', 'not pass')], default='0', max_length=1, verbose_name='state')),
                 ('content', models.TextField(verbose_name='content')),
-                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='letters', to=settings.AUTH_USER_MODEL, verbose_name='creator')),
-                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
+                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='letters', to=settings.AUTH_USER_MODEL, verbose_name='creator')),
+                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
             ],
             options={
                 'verbose_name': 'Leave a message and apply',
@@ -206,9 +206,9 @@ class Migration(migrations.Migration):
                 ('signature', models.CharField(max_length=70, verbose_name='digital signature')),
                 ('expire_time', models.DateTimeField(verbose_name='expiration')),
                 ('summary', models.CharField(blank=True, max_length=100, verbose_name='share additional description')),
-                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
-                ('file', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pan.genericfile', to_field='file_uuid', verbose_name='file')),
-                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
+                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), to=settings.AUTH_USER_MODEL, verbose_name='creator')),
+                ('file', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='disk.genericfile', to_field='file_uuid', verbose_name='file')),
+                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
             ],
             options={
                 'verbose_name': 'file sharing',
@@ -223,9 +223,9 @@ class Migration(migrations.Migration):
                 ('update_time', models.DateTimeField(auto_now=True, verbose_name='update time')),
                 ('remark', models.TextField(blank=True, verbose_name='remark')),
                 ('anonymous', models.GenericIPAddressField(blank=True, null=True, verbose_name='anonymous user')),
-                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='accept_records', to=settings.AUTH_USER_MODEL, verbose_name='receiver')),
-                ('file_share', models.ForeignKey(on_delete=models.SET(pan.models.get_deleted_file_share), to='pan.fileshare', verbose_name='file sharing')),
-                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(pan.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
+                ('create_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='accept_records', to=settings.AUTH_USER_MODEL, verbose_name='receiver')),
+                ('file_share', models.ForeignKey(on_delete=models.SET(disk.models.get_deleted_file_share), to='disk.fileshare', verbose_name='file sharing')),
+                ('update_by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(disk.models.get_deleted_user), related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='updater')),
             ],
             options={
                 'verbose_name': 'document receiving record',
@@ -243,7 +243,7 @@ class Migration(migrations.Migration):
                 'indexes': [],
                 'constraints': [],
             },
-            bases=('pan.letter',),
+            bases=('disk.letter',),
         ),
         migrations.CreateModel(
             name='File',
@@ -256,7 +256,7 @@ class Migration(migrations.Migration):
                 'indexes': [],
                 'constraints': [],
             },
-            bases=('pan.genericfile',),
+            bases=('disk.genericfile',),
         ),
         migrations.CreateModel(
             name='Folder',
@@ -269,7 +269,7 @@ class Migration(migrations.Migration):
                 'indexes': [],
                 'constraints': [],
             },
-            bases=('pan.genericfile',),
+            bases=('disk.genericfile',),
         ),
         migrations.CreateModel(
             name='Message',
@@ -282,6 +282,6 @@ class Migration(migrations.Migration):
                 'indexes': [],
                 'constraints': [],
             },
-            bases=('pan.letter',),
+            bases=('disk.letter',),
         ),
     ]

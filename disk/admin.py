@@ -2,10 +2,10 @@ from django.contrib import admin, messages
 from django.contrib.admin.models import LogEntry
 from django.utils.translation import ngettext
 
-from pan.utils import file_size_format
-from pan.models import (Profile, Role, Limit, RoleLimit,
-                        FileType, GenericFile, RecycleFile, FileShare, AcceptRecord,
-                        Notice, Letter, Message, Apply, AuthLog)
+from disk.utils import file_size_format
+from disk.models import (Profile, Role, Limit, RoleLimit,
+                         FileType, GenericFile, RecycleFile, FileShare, AcceptRecord,
+                         Notice, Letter, Message, Apply, AuthLog)
 
 
 # admin base class

@@ -19,10 +19,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.views import serve
 
-from pan.urls import router
+from disk.urls import router
 
 urlpatterns = [
-    path('', include('pan.urls')),
+    path('', include('disk.urls')),
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
@@ -36,7 +36,7 @@ if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-handler400 = 'pan.views.bad_request_view'
-handler403 = 'pan.views.permission_denied_view'
-handler404 = 'pan.views.not_found_view'
-handler500 = 'pan.views.server_error_view'
+handler400 = 'disk.views.bad_request_view'
+handler403 = 'disk.views.permission_denied_view'
+handler404 = 'disk.views.not_found_view'
+handler500 = 'disk.views.server_error_view'

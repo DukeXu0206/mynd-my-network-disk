@@ -1,9 +1,9 @@
 from django.urls import path
 from rest_framework.routers import SimpleRouter
 
-from pan import views
+from disk import views
 
-app_name = 'pan'
+app_name = 'disk'
 
 # 主要页面
 urlpatterns = [

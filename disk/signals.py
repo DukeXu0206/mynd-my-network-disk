@@ -9,8 +9,8 @@ from django.contrib.auth.models import User
 
 from httpagentparser import simple_detect
 
-from pan.models import GenericFile, RecycleFile, AuthLog, Profile, Role, RoleLimit
-from pan.utils import get_secret_path
+from disk.models import GenericFile, RecycleFile, AuthLog, Profile, Role, RoleLimit
+from disk.utils import get_secret_path
 
 
 # 用户首次创建和相关根目录创建

@@ -23,15 +23,15 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from pan.models import (
+from disk.models import (
     GenericFile, RecycleFile, FileType,
     FileShare, AcceptRecord, Notice, Profile
 )
-from pan.serializers import (
+from disk.serializers import (
     LoginSerializer, RegisterSerializer, PasswordSerializer, ProfileSerializer, UserSerializer,
     NoticeSerializer, LetterSerializer, FileSerializer, RecycleSerializer, FileShareSerializer
 )
-from pan.utils import AjaxData, get_key_signature, make_archive_bytes, get_uuid
+from disk.utils import AjaxData, get_key_signature, make_archive_bytes, get_uuid
 
 
 @method_decorator(ensure_csrf_cookie, 'get')

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from rest_framework import serializers
 
-from pan.models import GenericFile, RecycleFile, FileShare, Notice, Profile, Letter
+from disk.models import GenericFile, RecycleFile, FileShare, Notice, Profile, Letter
 
 
 class FileSerializer(serializers.ModelSerializer):

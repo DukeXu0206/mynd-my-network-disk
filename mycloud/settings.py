@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'pan.apps.PanConfig',
+    'disk.apps.PanConfig',
     'corsheaders',
     'rest_framework',
     # 'debug_toolbar',
@@ -169,7 +169,7 @@ REST_FRAMEWORK = {
 # ]
 
 # Storage root
-PAN_ROOT = MEDIA_ROOT / 'pan'
+PAN_ROOT = MEDIA_ROOT / 'disk'
 BIN_ROOT = MEDIA_ROOT / 'bin'
 
 # Upload avatar limit

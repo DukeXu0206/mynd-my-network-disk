@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{% static 'pan/vendor/mdb/mdb.min.css' %}" rel="stylesheet">
-    <link href="{% static 'pan/vendor/font-awesome/all.min.css' %}" rel="stylesheet">
-    <link href="{% static 'pan/css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'disk/vendor/mdb/mdb.min.css' %}" rel="stylesheet">
+    <link href="{% static 'disk/vendor/font-awesome/all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'disk/css/style.css' %}" rel="stylesheet">
     <title>home</title>
     <style>
         body {
-            background: url("{% static 'pan/img/mountain.jpg' %}") no-repeat center center fixed;
+            background: url("{% static 'disk/img/mountain.jpg' %}") no-repeat center center fixed;
             background-size: cover;
         }
     </style>
@@ -28,10 +28,10 @@
             </ul>
             <ul class="navbar-nav ms-auto flex-row align-items-center" id="navbar">
                 <li class="nav-item me-3">
-                    <a class="nav-link" href="{% url 'pan:home' %}#storage"><i class="fa-solid fa-cloud"></i></a>
+                    <a class="nav-link" href="{% url 'disk:home' %}#storage"><i class="fa-solid fa-cloud"></i></a>
                 </li>
                 <li class="nav-item me-3">
-                    <a class="nav-link" href="{% url 'pan:home' %}#history"><i class="fa-solid fa-clock"></i></a>
+                    <a class="nav-link" href="{% url 'disk:home' %}#history"><i class="fa-solid fa-clock"></i></a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link" href="javascript:void(0)" data-mdb-toggle="dropdown">
@@ -40,7 +40,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li>
-                            <a class="dropdown-item" href="{% url 'pan:home' %}#profile">personal information</a>
+                            <a class="dropdown-item" href="{% url 'disk:home' %}#profile">personal information</a>
                         </li>
                         <li>
                             <a class="dropdown-item" id="logout" href="javascript:void(0)">sign out</a>
@@ -199,11 +199,11 @@
         </div>
     </div>
 </div>
-<script src="{% static 'pan/vendor/jquery/jquery.min.js' %}"></script>
-<script src="{% static 'pan/vendor/mdb/mdb.min.js' %}"></script>
-<script src="{% static 'pan/vendor/iconfont/iconfont.js' %}"></script>
-<script src="{% static 'pan/js/utils.js' %}"></script>
-<script src="{% static 'pan/js/config.js' %}"></script>
-<script src="{% static 'pan/js/index.js' %}"></script>
+<script src="{% static 'disk/vendor/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'disk/vendor/mdb/mdb.min.js' %}"></script>
+<script src="{% static 'disk/vendor/iconfont/iconfont.js' %}"></script>
+<script src="{% static 'disk/js/utils.js' %}"></script>
+<script src="{% static 'disk/js/config.js' %}"></script>
+<script src="{% static 'disk/js/index.js' %}"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from pan.utils import get_uuid, get_unique_filename
+from disk.utils import get_uuid, get_unique_filename
 
 
 # 删除被关联字段后获取的填充值
