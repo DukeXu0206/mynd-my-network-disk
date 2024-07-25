@@ -729,9 +729,12 @@ class LetterViewSet(mixins.CreateModelMixin,
 
 class NoticeViewSet(mixins.ListModelMixin,
                     GenericViewSet):
-    """通知api"""
+    # 首先指定一个序列化器，它将此模型转换为JSON格式数据，然后将此视图的查询集定义为Notice模型的所有对象。
+    # 此处使用Select_related仅检查关联用户，以减少数据库中的查询数量。
+    # 因为可能有几个管理员，所以我认为负责更新的管理员和负责应用程序的管理员可以单独发出通知
     serializer_class = NoticeSerializer
     queryset = Notice.objects.select_related('create_by').all()
+    # 一个空的过滤器列表，因为我们不需要过滤器，如果后续一些网站维护的信息需要对通知进行过滤，可以添加过滤器
     filter_backends = []
 
 

@@ -220,4 +220,96 @@ class AcceptRecordAdmin(BaseAdmin):
         return False
 
 
+@admin.register(Notice)
+class NoticeAdmin(BaseAdmin):
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'content')
+        }),
+        ('other information', {
+            'fields': ('create_by', 'create_time', 'update_by', 'update_time', 'remark')
+        })
+    )
+    search_fields = ('create_by__username', 'title')
+    list_select_related = ('create_by',)
+    list_display = ('title', 'create_by')
 
+
+@admin.register(Letter)
+class LetterAdmin(admin.ModelAdmin):
+
+    def has_module_permission(self, request):
+        return False
+
+    def get_model_perms(self, request):
+        return {}
+
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': ('content',)
+        }),
+        ('other information', {
+            'fields': ('create_by', 'create_time', 'update_by', 'update_time', 'remark')
+        })
+    )
+    search_fields = ('create_by__username',)
+    readonly_fields = ('content', 'create_by', 'create_time', 'update_by', 'update_time')
+    list_select_related = ('create_by',)
+    list_display = ('create_by', 'create_time')
+    list_per_page = 10
+
+    def has_add_permission(self, request):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        obj.update_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(Apply)
+class ApplyAdmin(BaseAdmin):
+    fieldsets = (
+        (None, {
+            'fields': ('status', 'content')
+        }),
+        ('other information', {
+            'fields': ('create_by', 'create_time', 'update_by', 'update_time', 'remark')
+        })
+    )
+    search_fields = ('create_by__username',)
+    readonly_fields = BaseAdmin.readonly_fields + ('content',)
+    actions = (make_pass, make_not_pass)
+    list_select_related = ('create_by',)
+    list_filter = ('status',)
+    list_display = ('create_by', 'status', 'create_time')
+
+    def has_add_permission(self, request):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        obj.update_by = request.user
+        super().save_model(request, obj, form, change)
+
+        profile = obj.create_by.profile
+        if obj.status == '1':
+            profile.role = Role.objects.get_or_create(role_key='member', defaults={'role_name': 'vip'})[0]
+            profile.save()
+        else:
+            profile.role = Role.objects.get_or_create(role_key='common', defaults={'role_name': 'general user'})[0]
+            profile.save()
+
+
+@admin.register(AuthLog)
+class AuthLogAdmin(admin.ModelAdmin):
+    fields = ('username', 'ipaddress', 'browser', 'os', 'action', 'auth_time', 'msg')
+    search_fields = ('username',)
+    readonly_fields = ('username', 'ipaddress', 'browser', 'os', 'action', 'auth_time')
+    list_display = ('username', 'ipaddress', 'browser', 'os', 'action', 'auth_time')
+    list_filter = ('action',)
+    list_per_page = 15
+
+    def has_add_permission(self, request):
+        return False
