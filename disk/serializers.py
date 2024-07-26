@@ -17,7 +17,7 @@ class FileSerializer(serializers.ModelSerializer):
 
     def validate_file_name(self, value):
         """
-        文件名重名检查
+        Check if the file name already exists in the folder
         """
         if self.instance:
             name = value + (str(self.instance.file_type) if self.instance.file_type else '')

@@ -13,7 +13,7 @@ from disk.models import GenericFile, RecycleFile, AuthLog, Profile, Role, RoleLi
 from disk.utils import get_secret_path
 
 
-# 用户首次创建和相关根目录创建
+# First user creation and related root directory creation
 @receiver(post_save, sender=User, dispatch_uid="post_save_user")
 def post_save_user(sender, instance, created, **kwargs):
     if created:
@@ -26,7 +26,7 @@ def post_save_user(sender, instance, created, **kwargs):
         Path(settings.BIN_ROOT / root).mkdir(parents=True)
 
 
-# 删除文件数据同时删除source file
+# Delete file data and delete source file
 @receiver(pre_delete, sender=GenericFile, dispatch_uid="pre_delete_file")
 def pre_delete_file(sender, instance, **kwargs):
     if instance.folder is None:
@@ -39,7 +39,7 @@ def pre_delete_file(sender, instance, **kwargs):
             path.unlink()
 
 
-# 删除回收文件数据同时删除source file
+# Delete recovered file data and delete source file
 @receiver(pre_delete, sender=RecycleFile, dispatch_uid="pre_delete_refile")
 def pre_delete_refile(sender, instance, **kwargs):
     if instance.origin.folder is None:
@@ -52,15 +52,15 @@ def pre_delete_refile(sender, instance, **kwargs):
             path.unlink()
 
 
-# 用户日志
+# user log
 @receiver(user_logged_in, dispatch_uid='user_logged_in')
 def logged_in_log(sender, request, user, **kwargs):
-    # 保存根目录
+    # save root directory
     root = user.files.get(folder=None)
     rec_root = user.recycle_files.get(origin=None)
     request.session['root'] = str(root.file_uuid)
     request.session['rec_root'] = str(rec_root.pk)
-    # 保存当前用户限制和存储空间
+    # save current user limit and storage space
     queryset = RoleLimit.objects.select_related('limit').filter(role=user.profile.role)
     terms = {'used': root.file_size}
     for item in queryset:

@@ -1,7 +1,7 @@
 window.addEventListener('DOMContentLoaded', function () {
     'use strict'
 
-    // 必要组件和对象
+    // Required components and objects
     const storageTab = new mdb.Tab('#storageTab')
     const historyTab = new mdb.Tab('#historyTab')
     const binTab = new mdb.Tab('#binTab')
@@ -71,7 +71,7 @@ window.addEventListener('DOMContentLoaded', function () {
     const pagination = {offset: 0, limit: 5, next: true}
 
 
-    // 页面绑定
+
     storageTab.on('show.mdb.tab', initStorageTable)
         .on('hide.mdb.tab', () => destroyTable($storageTable))
         .on('click', () => location.hash = '#storage')
@@ -92,21 +92,21 @@ window.addEventListener('DOMContentLoaded', function () {
 
     document.querySelector('#avatar').addEventListener('click', () => profileTab._element.click())
 
-    // 侧边栏
+    // the sidebar
     window.innerWidth >= _config.BREAK_POINT ? sidebar.show() : sidebar.hide()
 
     window.addEventListener('resize', () => window.innerWidth > _config.BREAK_POINT ? sidebar.show() : sidebar.hide())
 
-    // 哈希路由监听
+    // hash route listening
     window.addEventListener('hashchange', mappingPage)
 
-    // 保存信息
+    // window close event and save
     window.addEventListener('beforeunload', () => {
         localStorage.setItem('profile', JSON.stringify(_config.profile))
         localStorage.setItem('terms', JSON.stringify(_config.terms))
     })
 
-    // 通知
+    // notice
     notice._element.addEventListener('show.mdb.dropdown', () => {
         $.get(_urls.notice, pagination, (res) => {
             notice._menu.insertAdjacentHTML('beforeend', templates.noticeTemplate(res.results))
@@ -126,7 +126,7 @@ window.addEventListener('DOMContentLoaded', function () {
         }
     })
 
-    // 设置用户信息
+    // Set user information
     $capacity.children(':first').text(custom.fileSizeFormat(terms.used))
     $capacity.children(':last').text(custom.fileSizeFormat(terms.storage))
 
@@ -138,19 +138,19 @@ window.addEventListener('DOMContentLoaded', function () {
     $profile.find('#date_joined').text(user.date_joined)
 
 
-    // 映射页面
+    // mapped pages
     function mappingPage() {
         let page = pageMap[location.hash]
         document.title = page.title
         page.tab.show()
     }
 
-    // 移除个人信息界面事件
+    // Remove personal information interface event
     function destroyProfile() {
         $profile.find('.action').off('click')
     }
 
-    // 销毁表格
+    // destroy the table
     function destroyTable($table) {
         let options = $table.bootstrapTable('getOptions')
         if (options.breadcrumb) options.breadcrumb.dispose()
@@ -161,7 +161,7 @@ window.addEventListener('DOMContentLoaded', function () {
         $table.bootstrapTable('destroy')
     }
 
-    // 排序
+    // sort
     function sortData(data, ordering, type) {
         let desc = ordering.charAt(0) === '-'
         let prop = desc ? ordering.substring(1) : ordering
@@ -173,7 +173,7 @@ window.addEventListener('DOMContentLoaded', function () {
         if (desc) data.reverse()
     }
 
-    // 更改
+    // change
     function alterHandler(url, method, data, callback) {
         $.ajax(url, {
             method: method,
@@ -191,7 +191,7 @@ window.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // 初始化存储表格
+    // init storage table
     function initStorageTable() {
         const checkFn = getCheckFn()
 
@@ -255,7 +255,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }],
         })
 
-        // 搜索
+        // search
         let $input = $search.children(':first')
         $search.removeClass('d-none').on("submit", function (e) {
             e.preventDefault()
@@ -276,7 +276,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         }).next().text('Search in network disk')
 
-        // 工具栏绑定
+        // toolbar binding
         $($storageTable.bootstrapTable('getOptions').toolbar).find('.action').each((i, el) => {
             let $el = $(el)
             let callback
@@ -313,7 +313,7 @@ window.addEventListener('DOMContentLoaded', function () {
             $el.on('click', callback)
         })
 
-        // 自定义视图
+        // Customize view
         function customView(data) {
             if (data.length === 0) {
                 return templates.elEmpty(`<p>Upload files using the toolbar</p>`)
@@ -333,7 +333,7 @@ window.addEventListener('DOMContentLoaded', function () {
             return `<div id="card-container" class="row g-3 row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">${view}</div>`
         }
 
-        // 自定义视图事件
+        // Customize view events
         function customViewEvents() {
             let cardContainer = document.querySelector('#card-container')
             if (!cardContainer) return
@@ -372,7 +372,7 @@ window.addEventListener('DOMContentLoaded', function () {
             checkFn(cardContainer)
         }
 
-        // 卡片选中
+        // card select
         function getCheckFn() {
             const check = (el) => {
                 let checkbox = el.parentElement.parentElement.querySelector('input[type=checkbox]')
@@ -383,7 +383,7 @@ window.addEventListener('DOMContentLoaded', function () {
                 else $storageTable.bootstrapTable('check', el.dataset.index)
             }
 
-            // 移动端判断
+            // mobile judge
             if (!custom.isMobile()) {
                 return (container) => {
                     container.addEventListener('click', (evt) => {
@@ -448,7 +448,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // 进入目录或文件详情
+        // Enter directory or file details
         function refresh(uuid, type, name) {
             if (String(type) === 'null') {
                 $storageTable.bootstrapTable('refresh', {
@@ -461,7 +461,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // 文件移动
+        // file move
         function fileMove(uuid) {
             let moveModalEl = document.querySelector('#moveModal')
             let moveModal = new mdb.Modal(moveModalEl)
@@ -490,7 +490,7 @@ window.addEventListener('DOMContentLoaded', function () {
             })
         }
 
-        // 获取文件夹数据
+        // get folder data
         function getFolderData(parent, exclude) {
             return $.ajax(_urls.folders, {
                 data: {parent: parent, exclude: exclude},
@@ -502,7 +502,7 @@ window.addEventListener('DOMContentLoaded', function () {
             })
         }
 
-        // 文件回收
+        // file recycle
         function fileRecycle(uuids) {
             if (uuids.length === 0) {
                 alert.setType('alert-warning').setIcon(_fontawsome.warning).setText('No files selected').show()
@@ -512,13 +512,13 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // 文件下载
+        // file download
         function fileDownload(uuid) {
             toast.setIcon(_fontawsome.info).setText('Packing in progress, please wait').show()
             location.href = _urls.fileBinary(uuid)
         }
 
-        // 文件重命名
+        // file rename
         function fileRename(uuid, name, index) {
             let modalEl = document.querySelector('#filenameModal')
             let form = modalEl.querySelector('form')
@@ -551,7 +551,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }).show()
         }
 
-        // 文件分享
+        // file share
         function fileShare(uuid) {
             let modalEl = document.querySelector('#shareModal')
             let delta = modalEl.querySelector('#delta')
@@ -561,16 +561,16 @@ window.addEventListener('DOMContentLoaded', function () {
             let expiryChange = false
             let summaryChange = false
 
-            // 获取填充密匙
+            // get secret key
             $.get(_urls.fileShare(uuid), (data) => {
                 modalEl.querySelector('#shareKey').textContent = data.secret_key
                 modalEl.querySelector('#shareLink').textContent = _urls.fileSharePath(data.signature)
 
-                // 复制回调
+                // copy callback
                 const resolve = () => alert.setType('alert-success').setIcon(_fontawsome.success).setText('Copy Success').show()
                 const reject = () => alert.setType('alert-warning').setIcon(_fontawsome.warning).setText('Copy Failure').show()
 
-                // 功能函数
+                // function
                 const copyKey = () => custom.copyText(data.secret_key, resolve, reject)
                 const copyLink = () => custom.copyText(_urls.fileSharePath(data.signature), resolve, reject)
                 const copyAll = () => custom.copyText(`document: ${data.file.file_name}\nPassword sharing: ${data.secret_key}\nLink Sharing: ${_urls.fileSharePath(data.signature)}`.trim(), resolve, reject)
@@ -581,7 +581,7 @@ window.addEventListener('DOMContentLoaded', function () {
                     delta.textContent = el.textContent
                 }
 
-                // 点击事件回调
+                // click event callback
                 const callback = (evt) => {
                     let el = evt.target
                     let action = el.dataset.action
@@ -607,7 +607,7 @@ window.addEventListener('DOMContentLoaded', function () {
                     }
                 }
 
-                // 绑定监听和卸载
+                // bind listener and remove
                 modal.once('show.mdb.modal', () => {
                     modalEl.addEventListener('click', callback)
                 }).once('hidden.mdb.modal', () => {
@@ -624,7 +624,7 @@ window.addEventListener('DOMContentLoaded', function () {
             })
         }
 
-        // 文件上传
+        // file upload
         function fileUpload() {
             let file = this.files[0]
             let size = file.size
@@ -647,7 +647,7 @@ window.addEventListener('DOMContentLoaded', function () {
             this.value = ''
         }
 
-        // 文件夹上传
+        // folder upload
         function folderUpload() {
             let size = 0
             let upload_nums = 0
@@ -680,7 +680,7 @@ window.addEventListener('DOMContentLoaded', function () {
             this.value = ''
         }
 
-        // 重名检查
+        // rename check
         function uploadPreHandler(url, name, data, used) {
             let tableData = $storageTable.bootstrapTable('getData')
             let exist = tableData.filter((item) => item.file_name === name).length !== 0
@@ -689,7 +689,7 @@ window.addEventListener('DOMContentLoaded', function () {
             else uploadHandler(url, data, used)
         }
 
-        //上传处理
+        // upload process
         function uploadHandler(url, data, used) {
             let uploadBtn = document.querySelector('#uploadBtn')
             let uploadToastEl = document.querySelector('#uploadToast')
@@ -756,7 +756,7 @@ window.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // 初始化历史记录表格
+    // init history data table
     function initHistoryTable() {
         $historyTable.bootstrapTable({
             url: _urls.share,
@@ -803,7 +803,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }],
         })
 
-        // 搜索
+        // search
         let $input = $search.children(':first')
         $search.removeClass('d-none').on('submit', function (e) {
             e.preventDefault()
@@ -829,7 +829,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         }).next().text('Search in transfer history')
 
-        // 工具栏功能绑定
+        // toolbar binding
         $($historyTable.bootstrapTable('getOptions').toolbar).find('.action').each((i, el) => {
             let $el = $(el)
             let callback
@@ -845,14 +845,14 @@ window.addEventListener('DOMContentLoaded', function () {
             $el.on('click', callback)
         })
 
-        // 复制链接
+        // copy link
         function linkCopy(data) {
             let resolve = () => alert.setType('alert-success').setIcon(_fontawsome.success).setText('Copy Success').show()
             let reject = () => alert.setType('alert-warning').setIcon(_fontawsome.warning).setText('Copy Failure').show()
             custom.copyText(`document: ${data.file.file_name}\nPassword sharing: ${data.secret_key}\nLink Sharing: ${_urls.fileSharePath(data.signature)}`.trim(), resolve, reject)
         }
 
-        // 分享删除
+        // share delete
         function shareRemove(pks) {
             if (pks.length === 0) {
                 alert.setType('alert-warning').setIcon(_fontawsome.warning).setText('No records selected').show()
@@ -871,7 +871,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // 分享设置
+        // share setting
         function shareSetup(data, index) {
             let modalEl = document.querySelector('#shareModal')
             let delta = modalEl.querySelector('#delta')
@@ -885,11 +885,11 @@ window.addEventListener('DOMContentLoaded', function () {
             modalEl.querySelector('#shareLink').textContent = _urls.fileSharePath(data.signature)
             summary.value = data.summary
 
-            // 复制回调
+            // copy recall
             const resolve = () => alert.setType('alert-success').setIcon(_fontawsome.success).setText('Copy Success').show()
             const reject = () => alert.setType('alert-warning').setIcon(_fontawsome.warning).setText('Copy Failure').show()
 
-            // 功能函数
+            // function
             const copyKey = () => custom.copyText(data.secret_key, resolve, reject)
             const copyLink = () => custom.copyText(_urls.fileSharePath(data.signature), resolve, reject)
             const copyAll = () => custom.copyText(`document: ${data.file.file_name}\nPassword sharing: ${data.secret_key}\nLink Sharing: ${_urls.fileSharePath(data.signature)}`.trim(), resolve, reject)
@@ -900,7 +900,7 @@ window.addEventListener('DOMContentLoaded', function () {
                 delta.textContent = el.textContent
             }
 
-            // 点击事件回调
+            // click event callback
             const callback = (evt) => {
                 let el = evt.target
                 let action = el.dataset.action
@@ -926,7 +926,7 @@ window.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
-            // 绑定监听和卸载
+            // bind listener and remove
             modal.once('show.mdb.modal', () => {
                 modalEl.addEventListener('click', callback)
             }).once('hidden.mdb.modal', () => {
@@ -951,7 +951,7 @@ window.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // 初始化回收站表格
+    // init recycle table
     function initBinTable() {
         $binTable.bootstrapTable({
             url: _urls.bin,
@@ -1001,7 +1001,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }],
         })
 
-        // 搜索
+        // search
         let $input = $search.children(':first')
         $search.removeClass('d-none').on('submit', function (e) {
             e.preventDefault()
@@ -1027,7 +1027,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         }).next().text('Search in Recycle Bin')
 
-        // 工具栏功能绑定
+        // toolbar bind
         $($binTable.bootstrapTable('getOptions').toolbar).find('.action').each((i, el) => {
             let $el = $(el)
             let callback
@@ -1055,7 +1055,7 @@ window.addEventListener('DOMContentLoaded', function () {
             $el.on('click', callback)
         })
 
-        // 文件恢复
+        // file recover
         function fileRecover(pks) {
             if (pks.length === 0) {
                 alert.setType('alert-warning').setIcon(_fontawsome.warning).setText('No files selected').show()
@@ -1065,7 +1065,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // 文件彻底删除
+        // file remove
         function fileRemove(pks, size) {
             if (pks.length === 0) {
                 alert.setType('alert-warning').setIcon(_fontawsome.warning).setText('No files selected').show()
@@ -1089,11 +1089,11 @@ window.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // 初始化个人信息页面
+    // init personal profile
     function initProfile() {
         $search.addClass('d-none')
 
-        // 功能绑定
+        // function bind
         $profile.find('.action').each((i, el) => {
             let $el = $(el)
             let callback
@@ -1118,7 +1118,7 @@ window.addEventListener('DOMContentLoaded', function () {
             $el.on('click', callback)
         })
 
-        // 提交记录
+        // submit record
         function showRecord() {
             let recordModalEl = document.querySelector('#recordModal')
             let recordModal = new mdb.Modal(recordModalEl)
@@ -1140,7 +1140,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }).show()
         }
 
-        // 修改头像
+        // change avatar
         function alterAvatar() {
             let avatarModalEl = document.querySelector('#avatarModal')
             let avatarModal = new mdb.Modal(avatarModalEl)
@@ -1238,7 +1238,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }).show()
         }
 
-        // 修改个人信息
+        // change personal information
         function alterProfile() {
             let modalEl = document.querySelector('#profileModal')
             let modal = new mdb.Modal(modalEl)
@@ -1269,7 +1269,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }).show()
         }
 
-        // 修改modal
+        // change model
         function alterModal(id, url, method, callback) {
             let modalEl = document.getElementById(id)
             let modal = new mdb.Modal(modalEl)
@@ -1293,7 +1293,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }).show()
         }
 
-        // 验证和更改
+        // identify and change
         function alterHandler(url, method, form, btn, callback) {
             btn.disabled = true
             form.classList.remove('was-validated')

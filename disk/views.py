@@ -34,32 +34,31 @@ from disk.serializers import (
 from disk.utils import AjaxData, get_key_signature, make_archive_bytes, get_uuid
 
 
+# home page
 @method_decorator(ensure_csrf_cookie, 'get')
 class IndexView(TemplateView):
-    """首页"""
     template_name = 'disk/index.html'
 
 
+# main page
 @method_decorator(ensure_csrf_cookie, 'get')
 class HomeView(LoginRequiredMixin, TemplateView):
-    """主页面"""
     template_name = 'disk/home.html'
 
 
+# file detail page
 class FileDetailView(LoginRequiredMixin, TemplateView):
-    """文件详情"""
     template_name = 'disk/detail.html'
 
 
+# File share link page
 class FileShareView(TemplateView):
-    """链接获取文件"""
     template_name = 'disk/share.html'
 
 
+# Reset password
 class ResetDoneView(TemplateView):
-    """重置密码结果"""
     template_name = 'disk/reset_done.html'
-
     def get_context_data(self, **kwargs):
         param = kwargs.get('param')
         context = super().get_context_data()
@@ -77,8 +76,8 @@ class ResetDoneView(TemplateView):
         return context
 
 
+# Login
 class LoginView(APIView):
-    """登录"""
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -101,8 +100,8 @@ class LoginView(APIView):
             return Response(result)
 
 
+# Register
 class RegisterView(APIView):
-    """注册"""
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -118,16 +117,16 @@ class RegisterView(APIView):
             return Response(result)
 
 
+# Logout
 class LogoutView(APIView):
-    """登出"""
 
     def get(self, request):
         logout(request)
         return Response()
 
 
+# Change password
 class PasswordView(APIView):
-    """修改密码"""
 
     def post(self, request):
         serializer = PasswordSerializer(data=request.data, context={'request': request})
@@ -141,9 +140,8 @@ class PasswordView(APIView):
             return Response(result)
 
 
+# Reset password
 class ResetView(APIView):
-    """重置密码"""
-
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -173,9 +171,8 @@ class ResetView(APIView):
         return Response(result)
 
 
+# File upload
 class FileUploadView(APIView):
-    """上传文件"""
-
     def post(self, request):
         file = request.data.get('file')
         if not file:
@@ -192,14 +189,14 @@ class FileUploadView(APIView):
 
         folder_list = []
 
-        # 更新父文件夹大小
+        # Update parent folder size
         while folder:
             folder.file_size += file.size
             folder.update_by = request.user
             folder_list.append(folder)
             folder = folder.folder
 
-        # 开启事务，保证数据完整性
+        # Open transactions to ensure data integrity
         with transaction.atomic():
             file_type = FileType.objects.get_or_create(suffix=Path(file.name).suffix, defaults={'type_name': '未知'})[0]
             user_file = GenericFile.objects.create(file_name=file.name, file_type=file_type, file_size=file.size,
@@ -213,8 +210,8 @@ class FileUploadView(APIView):
         return Response(FileSerializer(user_file).data)
 
 
+# Folder upload
 class FolderUploadView(APIView):
-    """上传文件夹"""
 
     def post(self, request):
         files = request.data.getlist('files')
@@ -241,14 +238,14 @@ class FolderUploadView(APIView):
         folder_list = []
         folder_dict = defaultdict(int)
 
-        # 开启事务，保证数据完整性
+        # Open transactions to ensure data integrity
         with transaction.atomic():
             for i in range(path_nums):
                 relative_path = Path(paths[i])
                 parts = relative_path.parts[:-1]
                 parents = list(reversed(relative_path.parents))[1:]
                 temp_folder = parent
-                # 逐级创建目录
+                # Create directories step by step
                 for j in range(len(parts)):
                     part_path = parent_path / parents[j]
                     part_folder = GenericFile.objects.get_or_create(file_path=part_path, is_del=False, defaults={
@@ -257,7 +254,7 @@ class FolderUploadView(APIView):
                         'create_by': request.user,
                     })[0]
                     temp_folder = part_folder
-                # 创建文件对象
+                # Create a file object
                 file = files[i]
                 file_path = parent_path / paths[i]
                 file_type = FileType.objects.get_or_create(suffix=Path(file.name).suffix,
@@ -265,7 +262,7 @@ class FolderUploadView(APIView):
                 file_list.append(GenericFile(file_name=file.name, file_type=file_type, file_size=file.size,
                                              file_path=file_path, folder=temp_folder, create_by=request.user))
 
-            # 计算父文件夹大小
+            # Update the size of the parent folder
             for item in file_list:
                 folder = item.folder
                 while folder:
@@ -280,7 +277,7 @@ class FolderUploadView(APIView):
             GenericFile.objects.bulk_create(file_list)
             GenericFile.objects.bulk_update(folder_list, ('file_size', 'update_by'))
 
-            # 创建目录与文件
+            # create the file to the disk
             for i in range(path_nums):
                 file = files[i]
                 path = settings.PAN_ROOT / parent_path / Path(paths[i]).parent
@@ -294,8 +291,9 @@ class FolderUploadView(APIView):
         return Response(FileSerializer(folder).data)
 
 
+# personal information
 class ProfileViewSet(GenericViewSet):
-    """个人信息"""
+
     serializer_class = ProfileSerializer
     filter_backends = []
     pagination_class = None
@@ -326,11 +324,12 @@ class ProfileViewSet(GenericViewSet):
             return Response(result)
 
 
+# disk file view
 class FileViewSet(mixins.ListModelMixin,
                   mixins.UpdateModelMixin,
                   mixins.RetrieveModelMixin,
                   GenericViewSet):
-    """网盘文件api"""
+
     serializer_class = FileSerializer
     pagination_class = None
 
@@ -433,7 +432,7 @@ class FileViewSet(mixins.ListModelMixin,
         bin_root = settings.BIN_ROOT
         rec_root = Path(RecycleFile.objects.get(pk=request.session['rec_root']).recycle_path)
 
-        # 递归更新子文件
+        # Recursively update subfiles
         def recursive_update(obj):
             obj.is_del = True
             obj.update_by = request.user
@@ -444,7 +443,7 @@ class FileViewSet(mixins.ListModelMixin,
                 for f in files:
                     recursive_update(f)
 
-        # 处理回收文件
+        # processing recycle file
         for file in queryset:
             if file.folder.folder_id:
                 folder_dict[file.folder] += file.file_size
@@ -454,20 +453,20 @@ class FileViewSet(mixins.ListModelMixin,
             refile_list.append(RecycleFile(recycle_path=rec_path, origin_path=file.file_path,
                                            origin=file, create_by=request.user))
 
-        # 重新计算父文件夹大小(根目录除外)
+        # Recalculate the size of the parent folder (excluding the root directory)
         for folder, size in tuple(folder_dict.items()):
             folder = folder.folder
             while folder.folder:
                 folder_dict[folder] += size
                 folder = folder.folder
 
-        # 更新父文件夹大小
+        # Update parent folder
         for folder, size in folder_dict.items():
             folder.file_size -= size
             folder.update_by = request.user
             folder_list.append(folder)
 
-        # 开启事务，保证数据完整性
+        # Open transactions to ensure data integrity
         with transaction.atomic():
             if refile_list:
                 RecycleFile.objects.bulk_create(refile_list)
@@ -506,9 +505,10 @@ class FileViewSet(mixins.ListModelMixin,
         return Response(result)
 
 
+# recycle bin view
 class RecycleViewSet(mixins.ListModelMixin,
                      GenericViewSet):
-    """回收站api"""
+
     serializer_class = RecycleSerializer
     search_fields = ['origin__file_name']
     ordering_fields = ['origin__file_name', 'origin__file_size', 'create_time']
@@ -536,7 +536,7 @@ class RecycleViewSet(mixins.ListModelMixin,
         bin_root = settings.BIN_ROOT
         usr_root = GenericFile.objects.get(file_uuid=request.session['root'])
 
-        # 递归更新子文件
+        # Recursively update subfiles
         def recursive_update(obj, parent):
             obj.is_del = False
             obj.folder = parent
@@ -549,7 +549,7 @@ class RecycleViewSet(mixins.ListModelMixin,
                 for f in files:
                     recursive_update(f, obj)
 
-        # 处理回收文件
+        # Processing recycle file
         for rec in queryset:
             if (pan_root / rec.origin_path).exists() or not (pan_root / rec.origin.folder.file_path).exists():
                 # 冲突处理
@@ -568,20 +568,20 @@ class RecycleViewSet(mixins.ListModelMixin,
             if not clash and rec.origin.folder.folder_id:
                 folder_dict[rec.origin.folder] += rec.origin.file_size
 
-        # 重新计算父文件夹大小(根目录除外)
+        # Recalculate parent folder size (except root directory)
         for folder, size in tuple(folder_dict.items()):
             folder = folder.folder
             while folder.folder:
                 folder_dict[folder] += size
                 folder = folder.folder
 
-        # 更新父文件夹
+        # Update parent folder
         for folder, size in folder_dict.items():
             folder.file_size += size
             folder.update_by = request.user
             folder_list.append(folder)
 
-        # 开启事务，保证数据完整性
+        # Open transactions to ensure data integrity
         with transaction.atomic():
             if folder_list:
                 GenericFile.objects.bulk_update(folder_list, ('file_size', 'update_by'))
@@ -612,12 +612,12 @@ class RecycleViewSet(mixins.ListModelMixin,
         removed = 0
         uuids = []
 
-        # 处理回收文件
+        # Calculate the total size of the files to be deleted
         for rec in queryset:
             removed += rec.origin.file_size
             uuids.append(rec.origin.file_uuid)
 
-        # 开启事务，保证数据完整性
+        # Open transactions to ensure data integrity
         with transaction.atomic():
             GenericFile.objects.filter(file_uuid__in=uuids).delete()
             root = GenericFile.objects.get(file_uuid=request.session['root'])
@@ -629,11 +629,11 @@ class RecycleViewSet(mixins.ListModelMixin,
         return Response(result)
 
 
+# File sharing view
 class FileShareViewSet(mixins.ListModelMixin,
                        mixins.UpdateModelMixin,
                        mixins.RetrieveModelMixin,
                        GenericViewSet):
-    """文件分享api"""
     serializer_class = FileShareSerializer
     search_fields = ['file__file_name']
     ordering_fields = ['create_time', 'expire_time']
@@ -700,10 +700,11 @@ class FileShareViewSet(mixins.ListModelMixin,
         return Response(FileShareSerializer(obj).data)
 
 
+# apply and leave message view
 class LetterViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
                     GenericViewSet):
-    """申请和留言api"""
+
     serializer_class = LetterSerializer
     pagination_class = None
     filter_backends = []
@@ -727,6 +728,7 @@ class LetterViewSet(mixins.CreateModelMixin,
         serializer.save(create_by=self.request.user)
 
 
+# Notice view
 class NoticeViewSet(mixins.ListModelMixin,
                     GenericViewSet):
     # 首先指定一个序列化器，它将此模型转换为JSON格式数据，然后将此视图的查询集定义为Notice模型的所有对象。
@@ -738,7 +740,7 @@ class NoticeViewSet(mixins.ListModelMixin,
     filter_backends = []
 
 
-# 异常视图
+# error view
 def bad_request_view(request, exception, template_name='errors/400.html'):
     return render(request, template_name, status=400)
 

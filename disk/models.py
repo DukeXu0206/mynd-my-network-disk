@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from disk.utils import get_uuid, get_unique_filename
 
 
-# 删除被关联字段后获取的填充值
+# The padding value obtained after deleting the associated field
 def get_deleted_role():
     return Role.objects.get_or_create(role_key='anonymous', defaults={'role_name': 'anonymous'})[0]
 
@@ -48,7 +48,7 @@ def get_deleted_file_share():
     )[0]
 
 
-# 代理管理器
+# agent management
 class MessageManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(action='0')
@@ -60,7 +60,6 @@ class ApplyManager(models.Manager):
 
 
 class BaseModel(models.Model):
-    """基础模型"""
 
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='create time')
     update_time = models.DateTimeField(auto_now=True, verbose_name='update time')
@@ -75,7 +74,6 @@ class BaseModel(models.Model):
 
 
 class Role(BaseModel):
-    """role"""
 
     role_name = models.CharField(max_length=50, verbose_name='role name')
     role_key = models.CharField(unique=True, max_length=50, verbose_name='role character')
@@ -89,7 +87,6 @@ class Role(BaseModel):
 
 
 class Limit(BaseModel):
-    """限制"""
 
     limit_name = models.CharField(max_length=50, verbose_name='restriction name')
     limit_key = models.CharField(unique=True, max_length=50, verbose_name='restricted characters')
@@ -103,7 +100,6 @@ class Limit(BaseModel):
 
 
 class RoleLimit(BaseModel):
-    """role限制"""
 
     role = models.ForeignKey(Role, on_delete=models.CASCADE, verbose_name='role')
     limit = models.ForeignKey(Limit, on_delete=models.CASCADE, verbose_name='limit')
@@ -118,7 +114,6 @@ class RoleLimit(BaseModel):
 
 
 class Notice(BaseModel):
-    """通知"""
 
     title = models.CharField(max_length=50, verbose_name='title')
     content = models.TextField(verbose_name='notification content')
@@ -155,7 +150,6 @@ class Profile(BaseModel):
 
 
 class FileType(BaseModel):
-    """文件类型"""
 
     type_name = models.CharField(max_length=50, verbose_name='type name')
     suffix = models.CharField(unique=True, blank=True, max_length=10, verbose_name='file extension')
@@ -169,7 +163,6 @@ class FileType(BaseModel):
 
 
 class GenericFile(BaseModel):
-    """文件(文件夹)"""
 
     create_by = models.ForeignKey(User, on_delete=models.SET(get_deleted_user), related_name='files',
                                   null=True, blank=True, verbose_name='creator')
@@ -196,9 +189,7 @@ class GenericFile(BaseModel):
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
-        """
-        定制save方法，文件更新传播
-        """
+
         super().save(force_insert, force_update, using, update_fields)
         if hasattr(self, '_loaded_values'):
             objs = []
@@ -243,7 +234,6 @@ class GenericFile(BaseModel):
 
 
 class RecycleFile(BaseModel):
-    """recycling files"""
 
     create_by = models.ForeignKey(User, on_delete=models.SET(get_deleted_user), related_name='recycle_files',
                                   null=True, blank=True, verbose_name='creator')
@@ -261,7 +251,6 @@ class RecycleFile(BaseModel):
 
 
 class FileShare(BaseModel):
-    """文件分享记录"""
 
     secret_key = models.CharField(db_index=True, max_length=10, verbose_name='share key')
     signature = models.CharField(max_length=70, verbose_name='digital signature')
@@ -278,7 +267,6 @@ class FileShare(BaseModel):
 
 
 class AcceptRecord(BaseModel):
-    """文件接收记录"""
 
     create_by = models.ForeignKey(User, on_delete=models.SET(get_deleted_user), related_name='accept_records',
                                   null=True, blank=True, verbose_name='receiver')
@@ -295,7 +283,6 @@ class AcceptRecord(BaseModel):
 
 
 class Letter(BaseModel):
-    """留言和申请"""
 
     ACTIONS = [
         ('0', 'message'),
@@ -324,7 +311,6 @@ class Letter(BaseModel):
 
 
 class Message(Letter):
-    """留言代理"""
     objects = MessageManager()
 
     class Meta:
@@ -334,7 +320,6 @@ class Message(Letter):
 
 
 class Apply(Letter):
-    """审核代理"""
     objects = ApplyManager()
 
     class Meta:
@@ -344,7 +329,6 @@ class Apply(Letter):
 
 
 class AuthLog(models.Model):
-    """用户验证日志"""
 
     ACTIONS = [
         ('0', 'log in'),

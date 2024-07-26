@@ -5,7 +5,7 @@ from disk import views
 
 app_name = 'disk'
 
-# 主要页面
+# main page
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     path('home', views.HomeView.as_view(), name="home"),
@@ -13,13 +13,13 @@ urlpatterns = [
     path('share', views.FileShareView.as_view(), name='share')
 ]
 
-# 上传
+# upload
 urlpatterns += [
     path('file/upload', views.FileUploadView.as_view(), name='file-upload'),
     path('folder/upload', views.FolderUploadView.as_view(), name='folder-upload'),
 ]
 
-# 验证
+# check
 urlpatterns += [
     path('login', views.LoginView.as_view(), name='login'),
     path('register', views.RegisterView.as_view(), name='register'),
