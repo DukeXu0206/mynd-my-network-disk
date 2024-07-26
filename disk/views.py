@@ -75,7 +75,6 @@ class ResetDoneView(TemplateView):
             context['access'] = False
         return context
 
-
 # Login
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -107,14 +106,14 @@ class RegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            username = serializer.validated_data['username']
-            password = serializer.validated_data['password1']
-            User.objects.create_user(username=username, password=password)
+            User.objects.create_user(
+                username=serializer.validated_data['username'],
+                password=serializer.validated_data['password1']
+            )
             result = AjaxData(msg='registration success')
             return Response(result)
-        else:
-            result = AjaxData(400, errors=serializer.errors)
-            return Response(result)
+        result = AjaxData(400, errors=serializer.errors)
+        return Response(result)
 
 
 # Logout
@@ -135,9 +134,8 @@ class PasswordView(APIView):
             request.user.save()
             result = AjaxData(msg='Successfully modified')
             return Response(result)
-        else:
-            result = AjaxData(400, errors=serializer.errors)
-            return Response(result)
+        result = AjaxData(400, errors=serializer.errors)
+        return Response(result)
 
 
 # Reset password
@@ -146,18 +144,19 @@ class ResetView(APIView):
 
     def post(self, request):
         username = request.data.get('username').strip()
-        queryset = User.objects.filter(username=username)
+        user = User.objects.filter(username=username).first()
 
-        if not queryset.exists() or not queryset.get().email:
+        if not user or not user.email:
             result = AjaxData(400, errors={'username': ['The username does not exist or the email address is not bound']})
             return Response(result)
 
-        user = queryset.get()
         auth = {'user': user.username, 'token': settings.RESET_TOKEN}
-        context = {'scheme': request.META.get('wsgi.url_scheme'),
-                   'host': request.META.get('HTTP_HOST'),
-                   'param': TimestampSigner().sign_object(auth),
-                   'password': settings.RESET_PASSWORD}
+        context = {
+            'scheme': request.META.get('wsgi.url_scheme'),
+            'host': request.META.get('HTTP_HOST'),
+            'param': TimestampSigner().sign_object(auth),
+            'password': settings.RESET_PASSWORD
+        }
         html = render_to_string('disk/reset.html', context)
         send_mail(
             subject='Tiny network disk',
@@ -182,14 +181,15 @@ class FileUploadView(APIView):
         if used > request.session['terms']['storage']:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        parent = folder = request.user.files.get(file_uuid=request.data.get('parent', request.session['root']))
+        parent = request.user.files.get(file_uuid=request.data.get('parent', request.session['root']))
         file_path = Path(parent.file_path) / file.name
-        if Path(file_path).exists():
+        if file_path.exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         folder_list = []
 
         # Update parent folder size
+        folder = parent
         while folder:
             folder.file_size += file.size
             folder.update_by = request.user
@@ -198,10 +198,12 @@ class FileUploadView(APIView):
 
         # Open transactions to ensure data integrity
         with transaction.atomic():
-            file_type = FileType.objects.get_or_create(suffix=Path(file.name).suffix, defaults={'type_name': '未知'})[0]
-            user_file = GenericFile.objects.create(file_name=file.name, file_type=file_type, file_size=file.size,
-                                                   file_path=file_path, folder=parent, create_by=request.user)
-            GenericFile.objects.bulk_update(folder_list, ('file_size', 'update_by'))
+            file_type = FileType.objects.get_or_create(suffix=file_path.suffix, defaults={'type_name': '未知'})[0]
+            user_file = GenericFile.objects.create(
+                file_name=file.name, file_type=file_type, file_size=file.size,
+                file_path=file_path, folder=parent, create_by=request.user
+            )
+            GenericFile.objects.bulk_update(folder_list, ['file_size', 'update_by'])
             with open(settings.PAN_ROOT / file_path, 'wb') as f:
                 for chunk in file.chunks():
                     f.write(chunk)
@@ -257,10 +259,11 @@ class FolderUploadView(APIView):
                 # Create a file object
                 file = files[i]
                 file_path = parent_path / paths[i]
-                file_type = FileType.objects.get_or_create(suffix=Path(file.name).suffix,
-                                                           defaults={'type_name': '未知'})[0]
-                file_list.append(GenericFile(file_name=file.name, file_type=file_type, file_size=file.size,
-                                             file_path=file_path, folder=temp_folder, create_by=request.user))
+                file_type = FileType.objects.get_or_create(suffix=file_path.suffix, defaults={'type_name': '未知'})[0]
+                file_list.append(GenericFile(
+                    file_name=file.name, file_type=file_type, file_size=file.size,
+                    file_path=file_path, folder=temp_folder, create_by=request.user
+                ))
 
             # Update the size of the parent folder
             for item in file_list:
@@ -269,19 +272,19 @@ class FolderUploadView(APIView):
                     folder_dict[folder] += item.file_size
                     folder = folder.folder
 
-            for item, size in folder_dict.items():
-                item.file_size += size
-                item.update_by = request.user
-                folder_list.append(item)
+            for folder, size in folder_dict.items():
+                folder.file_size += size
+                folder.update_by = request.user
+                folder_list.append(folder)
 
             GenericFile.objects.bulk_create(file_list)
-            GenericFile.objects.bulk_update(folder_list, ('file_size', 'update_by'))
+            GenericFile.objects.bulk_update(folder_list, ['file_size', 'update_by'])
 
             # create the file to the disk
             for i in range(path_nums):
                 file = files[i]
                 path = settings.PAN_ROOT / parent_path / Path(paths[i]).parent
-                Path(path).mkdir(parents=True, exist_ok=True)
+                path.mkdir(parents=True, exist_ok=True)
                 with open(path / file.name, 'wb') as f:
                     for chunk in file.chunks():
                         f.write(chunk)
@@ -349,13 +352,11 @@ class FileViewSet(mixins.ListModelMixin,
 
         if serializer.is_valid():
             self.perform_update(serializer)
-            if getattr(instance, '_prefetched_objects_cache', None):
-                instance._prefetched_objects_cache = {}
+            instance._prefetched_objects_cache = {}
             result = AjaxData(msg='File renamed', data=serializer.data)
             return Response(result)
-        else:
-            result = AjaxData(400, str(serializer.errors['file_name'][0]))
-            return Response(result)
+        result = AjaxData(400, str(serializer.errors['file_name'][0]))
+        return Response(result)
 
     def perform_update(self, serializer):
         serializer.save(update_by=self.request.user)
