@@ -135,8 +135,8 @@ class Profile(BaseModel):
     """user profile"""
 
     GENDER = [
-        ('0', '女'),
-        ('1', '男')
+        ('0', 'female'),
+        ('1', 'male')
     ]
 
     create_by = None

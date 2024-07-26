@@ -118,11 +118,14 @@
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li><a class="action dropdown-item active" href="javascript:void(0)"
-                                               data-action="sort" data-sort="file_name" data-type="string">file name</a></li>
+                                               data-action="sort" data-sort="file_name" data-type="string">file name</a>
+                                        </li>
                                         <li><a class="action dropdown-item" href="javascript:void(0)"
-                                               data-action="sort" data-sort="file_size" data-type="int">File size</a></li>
+                                               data-action="sort" data-sort="file_size" data-type="int">File size</a>
+                                        </li>
                                         <li><a class="action dropdown-item" href="javascript:void(0)"
-                                               data-action="sort" data-sort="create_time" data-type="date">Upload time</a></li>
+                                               data-action="sort" data-sort="create_time" data-type="date">Upload
+                                            time</a></li>
                                         <li>
                                             <hr class="dropdown-divider"/>
                                         </li>
@@ -201,84 +204,92 @@
                     </section>
                     <section class="tab-pane fade" id="profilePane">
                         <div class="row gy-4">
-                            <div class="col-lg-5">
+                            <div class="col-lg-6">
                                 <div class="card">
-                                    <div class="card-header h4">personal information</div>
+                                    <div class="card-header h4">Personal Information</div>
                                     <div class="card-body">
                                         <div class="bg-image hover-overlay mx-auto" style="width: 128px">
-                                            <img class="rounded-circle avatar" src=""
-                                                 height="128" width="128" alt="avatar">
+                                            <img class="rounded-circle avatar" src="" height="128" width="128"
+                                                 alt="avatar">
                                             <a class="action" href="javascript:void(0)" data-action="avatar">
-                                                <div class="mask rounded-circle"
-                                                     style="background-color: rgba(0, 0, 0, 0.2)">
-                                                </div>
+                                                <div class="mask rounded-circle"></div>
                                             </a>
                                         </div>
-                                        <ul class="list-group list-group-light">
-                                            <li class="list-group-item border-0 d-flex flex-wrap">
-                                                <span class="me-auto">username：</span>
-                                                <span id="username"></span>
+                                        <ul class="list-group list-group-light stylish-list">
+                                            <li class="list-group-item border-0 d-flex flex-wrap align-items-center">
+                                                <span class="me-auto label">Username:</span>
+                                                <span id="username" class="value"></span>
                                             </li>
-                                            <li class="list-group-item border-0 d-flex flex-wrap">
-                                                <span class="me-auto">gender：</span>
-                                                <span id="gender"></span>
+                                            <li class="list-group-item border-0 d-flex flex-wrap align-items-center">
+                                                <span class="me-auto label">Gender:</span>
+                                                <span id="gender" class="value"></span>
                                             </li>
-                                            <li class="list-group-item border-0 d-flex flex-wrap">
-                                                <span class="me-auto">Role：</span>
-                                                <span id="role"></span>
+                                            <li class="list-group-item border-0 d-flex flex-wrap align-items-center">
+                                                <span class="me-auto label">Role:</span>
+                                                <span id="role" class="value"></span>
                                             </li>
-                                            <li class="list-group-item border-0 d-flex flex-wrap">
-                                                <span class="me-auto">e-mail：</span>
-                                                <span id="email"></span>
+                                            <li class="list-group-item border-0 d-flex flex-wrap align-items-center">
+                                                <span class="me-auto label">E-mail:</span>
+                                                <span id="email" class="value"></span>
                                             </li>
-                                            <li class="list-group-item border-0 d-flex flex-wrap">
-                                                <span class="me-auto">registration time：</span>
-                                                <span id="date_joined"></span>
+                                            <li class="list-group-item border-0 d-flex flex-wrap align-items-center">
+                                                <span class="me-auto label">Registration Time:</span>
+                                                <span id="date_joined" class="value"></span>
                                             </li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-7">
+                            <div class="col-lg-6">
                                 <div class="card">
-                                    <div class="card-header h4">other information</div>
+                                    <div class="card-header h4">Other Information</div>
                                     <div class="card-body">
-                                        <div class="list-group list-group-light">
-                                            <div class="list-group-item px-3 border-0">
-                                                <div class="h5 mb-3">PRO information</div>
-                                                <div class="row">
-                                                    <div class="col-lg-6">
-                                                        <p class="lead">general user</p>
-                                                        <p>Storage space: 5GB</p>
-                                                        <p>Multimedia preview limit: less than 20MB</p>
+                                        <div class="pro-info-box">
+                                            <div class="h5 mb-3">PRO Information</div>
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="user-info">
+                                                        <span class="lead">General User</span>
+                                                        <span class="info-item">Storage Space: <span class="info-value">5GB</span></span>
+                                                        <span class="info-item">Multimedia Preview Limit: <span
+                                                                class="info-value">Less than 20MB</span></span>
                                                     </div>
-                                                    <div class="col-lg-6">
-                                                        <p class="lead">vip user</p>
-                                                        <p>Storage: 8GB</p>
-                                                        <p>Multimedia preview limit: less than 40MB</p>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="user-info">
+                                                        <span class="lead vip-user">VIP User</span>
+                                                        <span class="info-item">Storage Space: <span class="info-value">8GB</span></span>
+                                                        <span class="info-item">Multimedia Preview Limit: <span
+                                                                class="info-value">Less than 40MB</span></span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button type="button"
-                                                    class="action list-group-item list-group-item-action px-3 border-0"
-                                                    data-action="password">
-                                                <span class="h5">change Password</span>
-                                            </button>
-                                            <button type="button"
-                                                    class="action list-group-item list-group-item-action px-3 border-0"
-                                                    data-action="profile">
-                                                <span class="h5">Modify other</span>
-                                            </button>
-                                            <button type="button"
-                                                    class="action list-group-item list-group-item-action px-3 border-0"
-                                                    data-action="letter">
-                                                <span class="h5">Leave a message</span>
-                                            </button>
-                                            <button type="button"
-                                                    class="action list-group-item list-group-item-action px-3 border-0"
-                                                    data-action="record">
-                                                <span class="h5">Submit Records</span>
-                                            </button>
+                                        </div>
+                                        <div class="action-buttons d-flex flex-wrap">
+                                            <div class="col-6 p-2">
+                                                <button type="button" class="action btn btn-outline-primary w-100"
+                                                        data-action="password">
+                                                    <span class="h5">Change Password</span>
+                                                </button>
+                                            </div>
+                                            <div class="col-6 p-2">
+                                                <button type="button" class="action btn btn-outline-primary w-100"
+                                                        data-action="profile">
+                                                    <span class="h5">Modify Other</span>
+                                                </button>
+                                            </div>
+                                            <div class="col-6 p-2">
+                                                <button type="button" class="action btn btn-outline-primary w-100"
+                                                        data-action="letter">
+                                                    <span class="h5">Leave a Message</span>
+                                                </button>
+                                            </div>
+                                            <div class="col-6 p-2">
+                                                <button type="button" class="action btn btn-outline-primary w-100"
+                                                        data-action="record">
+                                                    <span class="h5">Submit Records</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -365,7 +376,9 @@
                             </div>
                             <a href="javascript:void(0)">
                                 <div class="hover-overlay">
-                                    <div class="mask text-dark" data-action="copyLink" style="background-color: white">copy</div>
+                                    <div class="mask text-dark" data-action="copyLink" style="background-color: white">
+                                        copy
+                                    </div>
                                 </div>
                             </a>
                         </div>
@@ -376,7 +389,9 @@
                             </div>
                             <a href="javascript:void(0)">
                                 <div class="hover-overlay">
-                                    <div class="mask text-dark" data-action="copyKey" style="background-color: white">copy</div>
+                                    <div class="mask text-dark" data-action="copyKey" style="background-color: white">
+                                        copy
+                                    </div>
                                 </div>
                             </a>
                         </div>
@@ -395,9 +410,11 @@
                                 7 days
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item delta-item" data-delta="1" data-action="changeExpiry" href="javascript:void(0)">1 day</a>
+                                <li><a class="dropdown-item delta-item" data-delta="1" data-action="changeExpiry"
+                                       href="javascript:void(0)">1 day</a>
                                 </li>
-                                <li><a class="dropdown-item delta-item" data-delta="7" data-action="changeExpiry" href="javascript:void(0)">7 days</a>
+                                <li><a class="dropdown-item delta-item" data-delta="7" data-action="changeExpiry"
+                                       href="javascript:void(0)">7 days</a>
                                 </li>
                                 <li><a class="dropdown-item delta-item" data-delta="30" data-action="changeExpiry"
                                        href="javascript:void(0)">30 days</a></li>
@@ -408,8 +425,10 @@
                         <p>Additional description</p>
                         <div class="mb-3">
                             <div class="form-outline">
-                                <textarea class="form-control" id="summary" rows="3" maxlength="100" data-action="changeSummary"></textarea>
-                                <label class="form-label" for="summary">This information will be displayed to the receiving users</label>
+                                <textarea class="form-control" id="summary" rows="3" maxlength="100"
+                                          data-action="changeSummary"></textarea>
+                                <label class="form-label" for="summary">This information will be displayed to the
+                                    receiving users</label>
                             </div>
                         </div>
                     </div>
@@ -552,7 +571,8 @@
                 <form class="row g-3" novalidate>
                     <div class="col-12">
                         <div class="form-outline">
-                            <input type="text" id="_username" name="username" class="form-control" maxlength="150" required>
+                            <input type="text" id="_username" name="username" class="form-control" maxlength="150"
+                                   required>
                             <label class="form-label" for="_username">username</label>
                             <div class="invalid-feedback">Not empty and less than 150 characters long</div>
                         </div>
@@ -642,7 +662,9 @@
                             <textarea class="form-control" id="content" name="content" rows="5" maxlength="100"
                                       required></textarea>
                             <label class="form-label" for="content">content</label>
-                            <div class="invalid-feedback">The content must not be empty and must be less than 100 characters.</div>
+                            <div class="invalid-feedback">The content must not be empty and must be less than 100
+                                characters.
+                            </div>
                         </div>
                     </div>
                     <div class="col-12 text-end">
@@ -693,7 +715,8 @@
                 <form class="row g-3" novalidate>
                     <div class="col-12">
                         <div class="form-outline">
-                            <input type="text" id="_filename" name="file_name" class="form-control" maxlength="100" required>
+                            <input type="text" id="_filename" name="file_name" class="form-control" maxlength="100"
+                                   required>
                             <label class="form-label" for="_filename">file name</label>
                             <div class="invalid-feedback">Not empty and less than 100 in length</div>
                         </div>

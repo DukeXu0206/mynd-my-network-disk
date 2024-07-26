@@ -37,28 +37,28 @@ from disk.utils import AjaxData, get_key_signature, make_archive_bytes, get_uuid
 @method_decorator(ensure_csrf_cookie, 'get')
 class IndexView(TemplateView):
     """首页"""
-    template_name = 'pan/index.html'
+    template_name = 'disk/index.html'
 
 
 @method_decorator(ensure_csrf_cookie, 'get')
 class HomeView(LoginRequiredMixin, TemplateView):
     """主页面"""
-    template_name = 'pan/home.html'
+    template_name = 'disk/home.html'
 
 
 class FileDetailView(LoginRequiredMixin, TemplateView):
     """文件详情"""
-    template_name = 'pan/detail.html'
+    template_name = 'disk/detail.html'
 
 
 class FileShareView(TemplateView):
     """链接获取文件"""
-    template_name = 'pan/share.html'
+    template_name = 'disk/share.html'
 
 
 class ResetDoneView(TemplateView):
     """重置密码结果"""
-    template_name = 'pan/reset_done.html'
+    template_name = 'disk/reset_done.html'
 
     def get_context_data(self, **kwargs):
         param = kwargs.get('param')
@@ -160,7 +160,7 @@ class ResetView(APIView):
                    'host': request.META.get('HTTP_HOST'),
                    'param': TimestampSigner().sign_object(auth),
                    'password': settings.RESET_PASSWORD}
-        html = render_to_string('pan/reset.html', context)
+        html = render_to_string('disk/reset.html', context)
         send_mail(
             subject='Tiny network disk',
             message=html,

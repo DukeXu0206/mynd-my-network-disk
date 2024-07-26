@@ -53,7 +53,7 @@ window.addEventListener('DOMContentLoaded', function () {
         set(target, prop, value) {
             target[prop] = value
 
-            if (prop === 'gender') $profile.find('#gender').text(profile.gender === '1' ? '男' : profile.gender === '0' ? '女' : '')
+            if (prop === 'gender') $profile.find('#gender').text(profile.gender === '1' ? 'male' : profile.gender === '0' ? 'female' : '')
             else if (prop === 'avatar') $avatars.prop('src', value)
             return true
         }
@@ -132,7 +132,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     $avatars.prop('src', profile.avatar)
     $profile.find('#username').text(user.username)
-    $profile.find('#gender').text(profile.gender === '1' ? '男' : profile.gender === '0' ? '女' : '')
+    $profile.find('#gender').text(profile.gender === '1' ? 'male' : profile.gender === '0' ? 'female' : '')
     $profile.find('#role').text(profile.role)
     $profile.find('#email').text(user.email)
     $profile.find('#date_joined').text(user.date_joined)
