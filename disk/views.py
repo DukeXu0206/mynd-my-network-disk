@@ -22,6 +22,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+from io import BytesIO
 
 from disk.models import (
     GenericFile, RecycleFile, FileType,
@@ -199,14 +202,16 @@ class FileUploadView(APIView):
         # Open transactions to ensure data integrity
         with transaction.atomic():
             file_type = FileType.objects.get_or_create(suffix=file_path.suffix, defaults={'type_name': '未知'})[0]
-            user_file = GenericFile.objects.create(
-                file_name=file.name, file_type=file_type, file_size=file.size,
-                file_path=file_path, folder=parent, create_by=request.user
-            )
+            user_file = GenericFile.objects.create(file_name=file.name, file_type=file_type, file_size=file.size,
+                                                   file_path=file_path, folder=parent, create_by=request.user)
             GenericFile.objects.bulk_update(folder_list, ['file_size', 'update_by'])
+
+            # Encrypt file content
+            cipher = AES.new(settings.ENCRYPTION_KEY, AES.MODE_ECB)
             with open(settings.PAN_ROOT / file_path, 'wb') as f:
                 for chunk in file.chunks():
-                    f.write(chunk)
+                    encrypted_chunk = cipher.encrypt(pad(chunk, AES.block_size))
+                    f.write(encrypted_chunk)
 
         request.session['terms']['used'] = used
         return Response(FileSerializer(user_file).data)
@@ -394,12 +399,32 @@ class FileViewSet(mixins.ListModelMixin,
 
         if file.file_type is not None:
             blob = request.query_params.get('blob')
-            response = FileResponse(open(root / file.file_path, 'rb'), as_attachment=True)
+            file_path = root / file.file_path
+
+            with open(file_path, 'rb') as f:
+                file_content = f.read()
+
+            try:
+                # Attempting to decrypt file contents
+                if len(file_content) > 16:  # Make sure the file is long enough to include IV
+                    iv = file_content[:16]  # The first 16 bytes are IV
+                    cipher = AES.new(settings.ENCRYPTION_KEY, AES.MODE_CBC, iv)
+                    decrypted_content = unpad(cipher.decrypt(file_content[16:]), AES.block_size)
+                else:
+                    # File is too short and may not be encrypted
+                    decrypted_content = file_content
+            except ValueError:
+                # If decryption fails, it is assumed that the file is not encrypted and the original content is used directly
+                decrypted_content = file_content
+
+            response = FileResponse(BytesIO(decrypted_content), as_attachment=True, filename=file.file_name)
             if blob:
                 response.as_attachment = False
             return response
         else:
-            return FileResponse(make_archive_bytes(root / file.file_path), as_attachment=True, filename='cloud.zip')
+            # For folders, use the make_archive_bytes function
+            return FileResponse(make_archive_bytes(root / file.file_path, encrypt=True),
+                                as_attachment=True, filename='cloud.zip')
 
     @action(methods=['GET'], detail=True)
     def share(self, request, uuid=None):

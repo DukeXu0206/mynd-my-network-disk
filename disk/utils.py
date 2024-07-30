@@ -3,10 +3,14 @@ import hmac
 import uuid
 import secrets
 import zipfile
+import io
 from io import BytesIO
 from pathlib import Path
-
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
 from django.core.signing import Signer
+
+from mycloud import settings
 
 
 # global unique identifier
@@ -38,7 +42,7 @@ def get_dir_size(path):
 
 
 # Compress the folder and return the byte object
-def make_archive_bytes(dir_path):
+def make_archive_bytes(dir_path, encrypt=False):
     buffer = BytesIO()
     dl = len(str(dir_path.parent)) + 1
 
@@ -48,7 +52,27 @@ def make_archive_bytes(dir_path):
             parent = Path(basedir[dl:])
             zipper.writestr(str(parent) + '/', '')
             for file in files:
-                zipper.write(base / file, parent / file)
+                file_path = base / file
+                if encrypt:
+                    # Read the file content and attempt to decrypt it
+                    with open(file_path, 'rb') as f:
+                        file_content = f.read()
+                    try:
+                        if len(file_content) > 16:  # Make sure the file is long enough to include IV
+                            iv = file_content[:16]
+                            encrypted_content = file_content[16:]
+                            cipher = AES.new(settings.ENCRYPTION_KEY, AES.MODE_CBC, iv)
+                            decrypted_content = unpad(cipher.decrypt(encrypted_content), AES.block_size)
+                        else:
+                            # File is too short and may not be encrypted
+                            decrypted_content = file_content
+                    except ValueError:
+                        # If decryption fails, it is assumed that the file is not encrypted and the original content is used directly
+                        decrypted_content = file_content
+                    # Write content to a zip file
+                    zipper.writestr(str(parent / file), decrypted_content)
+                else:
+                    zipper.write(file_path, parent / file)
             for folder in subdir:
                 zipper.writestr(str(parent / folder) + '/', '')
 

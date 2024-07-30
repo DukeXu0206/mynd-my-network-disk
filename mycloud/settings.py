@@ -181,3 +181,6 @@ RESET_TOKEN = token_hex(8)
 RESET_PASSWORD = '123456'
 
 TOKEN_EXPIRY = 1800
+
+# AES encryption key
+ENCRYPTION_KEY = b'3VadojNSuxsUTew4FH8PQg=='
