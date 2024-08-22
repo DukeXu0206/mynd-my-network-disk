@@ -54,7 +54,6 @@ def make_archive_bytes(dir_path, encrypt=False):
             for file in files:
                 file_path = base / file
                 if encrypt:
-                    # Read the file content and attempt to decrypt it
                     with open(file_path, 'rb') as f:
                         file_content = f.read()
                     try:

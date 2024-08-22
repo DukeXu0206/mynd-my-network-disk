@@ -22,9 +22,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad, unpad
-from io import BytesIO
 
 from disk.models import (
     GenericFile, RecycleFile, FileType,
@@ -78,6 +75,7 @@ class ResetDoneView(TemplateView):
             context['access'] = False
         return context
 
+
 # Login
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -86,10 +84,7 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             login(request, serializer.validated_data['user'])
-            expiry = request.session.get_expiry_date().timestamp()
-            if not serializer.validated_data['remember']:
-                request.session.set_expiry(0)
-                expiry = timezone.now().timestamp()
+            expiry = timezone.now().timestamp() if not serializer.validated_data['remember'] else request.session.get_expiry_date().timestamp()
             data = {
                 'terms': request.session['terms'],
                 'expiry': expiry,
@@ -97,9 +92,8 @@ class LoginView(APIView):
             }
             result = AjaxData(msg='login successful', data=data)
             return Response(result)
-        else:
-            result = AjaxData(400, errors=serializer.errors)
-            return Response(result)
+        result = AjaxData(400, errors=serializer.errors)
+        return Response(result)
 
 
 # Register
@@ -147,19 +141,18 @@ class ResetView(APIView):
 
     def post(self, request):
         username = request.data.get('username').strip()
-        user = User.objects.filter(username=username).first()
+        queryset = User.objects.filter(username=username)
 
-        if not user or not user.email:
+        if not queryset.exists() or not queryset.get().email:
             result = AjaxData(400, errors={'username': ['The username does not exist or the email address is not bound']})
             return Response(result)
 
+        user = queryset.get()
         auth = {'user': user.username, 'token': settings.RESET_TOKEN}
-        context = {
-            'scheme': request.META.get('wsgi.url_scheme'),
-            'host': request.META.get('HTTP_HOST'),
-            'param': TimestampSigner().sign_object(auth),
-            'password': settings.RESET_PASSWORD
-        }
+        context = {'scheme': request.META.get('wsgi.url_scheme'),
+                   'host': request.META.get('HTTP_HOST'),
+                   'param': TimestampSigner().sign_object(auth),
+                   'password': settings.RESET_PASSWORD}
         html = render_to_string('disk/reset.html', context)
         send_mail(
             subject='Tiny network disk',
@@ -184,15 +177,14 @@ class FileUploadView(APIView):
         if used > request.session['terms']['storage']:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        parent = request.user.files.get(file_uuid=request.data.get('parent', request.session['root']))
+        parent = folder = request.user.files.get(file_uuid=request.data.get('parent', request.session['root']))
         file_path = Path(parent.file_path) / file.name
-        if file_path.exists():
+        if Path(file_path).exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         folder_list = []
 
         # Update parent folder size
-        folder = parent
         while folder:
             folder.file_size += file.size
             folder.update_by = request.user
@@ -201,17 +193,13 @@ class FileUploadView(APIView):
 
         # Open transactions to ensure data integrity
         with transaction.atomic():
-            file_type = FileType.objects.get_or_create(suffix=file_path.suffix, defaults={'type_name': '未知'})[0]
+            file_type = FileType.objects.get_or_create(suffix=Path(file.name).suffix, defaults={'type_name': '未知'})[0]
             user_file = GenericFile.objects.create(file_name=file.name, file_type=file_type, file_size=file.size,
                                                    file_path=file_path, folder=parent, create_by=request.user)
-            GenericFile.objects.bulk_update(folder_list, ['file_size', 'update_by'])
-
-            # Encrypt file content
-            cipher = AES.new(settings.ENCRYPTION_KEY, AES.MODE_ECB)
+            GenericFile.objects.bulk_update(folder_list, ('file_size', 'update_by'))
             with open(settings.PAN_ROOT / file_path, 'wb') as f:
                 for chunk in file.chunks():
-                    encrypted_chunk = cipher.encrypt(pad(chunk, AES.block_size))
-                    f.write(encrypted_chunk)
+                    f.write(chunk)
 
         request.session['terms']['used'] = used
         return Response(FileSerializer(user_file).data)
@@ -264,11 +252,10 @@ class FolderUploadView(APIView):
                 # Create a file object
                 file = files[i]
                 file_path = parent_path / paths[i]
-                file_type = FileType.objects.get_or_create(suffix=file_path.suffix, defaults={'type_name': '未知'})[0]
-                file_list.append(GenericFile(
-                    file_name=file.name, file_type=file_type, file_size=file.size,
-                    file_path=file_path, folder=temp_folder, create_by=request.user
-                ))
+                file_type = FileType.objects.get_or_create(suffix=Path(file.name).suffix,
+                                                           defaults={'type_name': '未知'})[0]
+                file_list.append(GenericFile(file_name=file.name, file_type=file_type, file_size=file.size,
+                                             file_path=file_path, folder=temp_folder, create_by=request.user))
 
             # Update the size of the parent folder
             for item in file_list:
@@ -277,19 +264,19 @@ class FolderUploadView(APIView):
                     folder_dict[folder] += item.file_size
                     folder = folder.folder
 
-            for folder, size in folder_dict.items():
-                folder.file_size += size
-                folder.update_by = request.user
-                folder_list.append(folder)
+            for item, size in folder_dict.items():
+                item.file_size += size
+                item.update_by = request.user
+                folder_list.append(item)
 
             GenericFile.objects.bulk_create(file_list)
-            GenericFile.objects.bulk_update(folder_list, ['file_size', 'update_by'])
+            GenericFile.objects.bulk_update(folder_list, ('file_size', 'update_by'))
 
             # create the file to the disk
             for i in range(path_nums):
                 file = files[i]
                 path = settings.PAN_ROOT / parent_path / Path(paths[i]).parent
-                path.mkdir(parents=True, exist_ok=True)
+                Path(path).mkdir(parents=True, exist_ok=True)
                 with open(path / file.name, 'wb') as f:
                     for chunk in file.chunks():
                         f.write(chunk)
@@ -357,11 +344,13 @@ class FileViewSet(mixins.ListModelMixin,
 
         if serializer.is_valid():
             self.perform_update(serializer)
-            instance._prefetched_objects_cache = {}
+            if getattr(instance, '_prefetched_objects_cache', None):
+                instance._prefetched_objects_cache = {}
             result = AjaxData(msg='File renamed', data=serializer.data)
             return Response(result)
-        result = AjaxData(400, str(serializer.errors['file_name'][0]))
-        return Response(result)
+        else:
+            result = AjaxData(400, str(serializer.errors['file_name'][0]))
+            return Response(result)
 
     def perform_update(self, serializer):
         serializer.save(update_by=self.request.user)
@@ -399,32 +388,12 @@ class FileViewSet(mixins.ListModelMixin,
 
         if file.file_type is not None:
             blob = request.query_params.get('blob')
-            file_path = root / file.file_path
-
-            with open(file_path, 'rb') as f:
-                file_content = f.read()
-
-            try:
-                # Attempting to decrypt file contents
-                if len(file_content) > 16:  # Make sure the file is long enough to include IV
-                    iv = file_content[:16]  # The first 16 bytes are IV
-                    cipher = AES.new(settings.ENCRYPTION_KEY, AES.MODE_CBC, iv)
-                    decrypted_content = unpad(cipher.decrypt(file_content[16:]), AES.block_size)
-                else:
-                    # File is too short and may not be encrypted
-                    decrypted_content = file_content
-            except ValueError:
-                # If decryption fails, it is assumed that the file is not encrypted and the original content is used directly
-                decrypted_content = file_content
-
-            response = FileResponse(BytesIO(decrypted_content), as_attachment=True, filename=file.file_name)
+            response = FileResponse(open(root / file.file_path, 'rb'), as_attachment=True)
             if blob:
                 response.as_attachment = False
             return response
         else:
-            # For folders, use the make_archive_bytes function
-            return FileResponse(make_archive_bytes(root / file.file_path, encrypt=True),
-                                as_attachment=True, filename='cloud.zip')
+            return FileResponse(make_archive_bytes(root / file.file_path), as_attachment=True, filename='cloud.zip')
 
     @action(methods=['GET'], detail=True)
     def share(self, request, uuid=None):
